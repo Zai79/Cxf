@@ -1,5 +1,8 @@
-import discord, os, asyncio
+import discord, os
+from flask import Flask
+import threading
 
+# ====== Discord Client ======
 class VoiceClient(discord.Client):
     async def on_ready(self):
         print(f"✅ تسجيل الدخول: {self.user}")
@@ -23,7 +26,22 @@ class VoiceClient(discord.Client):
         except Exception as e:
             print(f"⚠️ خطأ أثناء الدخول: {e}")
 
-# تشغيل البوت
+# ====== Keep Alive Server (عشان Render ما يوقفه) ======
+app = Flask('')
+@app.route('/')
+def home():
+    return "Bot is Alive!"
+
+def run_web():
+    app.run(host='0.0.0.0', port=8080)
+
+def keep_alive():
+    t = threading.Thread(target=run_web)
+    t.start()
+
+# ====== تشغيل ======
 intents = discord.Intents.default()
 client = VoiceClient(intents=intents)
+
+keep_alive()  # تفعيل ويب سيرفر وهمي
 client.run(os.environ["TOKEN"])
